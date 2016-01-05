@@ -8,3 +8,8 @@ perl:
   - "5.12"
   - "5.10"
   - "5.008"
+env:
+  - FORCE_ALIEN=1
+  - NO_FORCE_ALIEN=1
+before_script:
+  - cpanm Alien::Base~0.023_01
