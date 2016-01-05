@@ -11,5 +11,5 @@ perl:
 env:
   - FORCE_ALIEN=1
   - NO_FORCE_ALIEN=1
-before_script:
-  - cpanm Alien::Base~0.023_01
+install:
+  - cpanm --notest --skip-satisfied Alien::Base~0.023_01
