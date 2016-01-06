@@ -2,6 +2,6 @@ language: perl
 perl:
   - "5.20"
 env:
-  - FORCE_ALIEN=1
+  - FORCE_ALIEN=1 PERL5OPT=-Mlocal::lib
 install:
   - cpanm -l --verbose --notest Alien::Base@0.023_01
