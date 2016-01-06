@@ -7,11 +7,11 @@ perl:
   - "5.14"
   - "5.12"
   - "5.10"
-  - "5.008"
+  - "5.8"
 env:
   - ALIEN_FORCE=1
 install:
-  - cpanm --verbose --notest Alien::Base@0.023_01
+  - cpanm --notest Alien::Base@0.023_01
 script:
   - perl Build.PL && ./Build manifest && perl Build.PL && ./Build && ./Build test
   
