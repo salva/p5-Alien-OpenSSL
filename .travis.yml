@@ -5,5 +5,5 @@ env:
   - FORCE_ALIEN=1
 install:
   - cpanm -l --verbose --notest Alien::Base@0.023_01
-  - find ~/perl5
+  - find ~/perl5/perlbrew/perls/5.20
   
