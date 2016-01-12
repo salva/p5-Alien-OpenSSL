@@ -7,17 +7,64 @@ use Alien::Base::ModuleBuild '0.025';
 my $addcc = "";
 $addcc = "CC=cc " if ( (!can_run('gcc')) && can_run('cc') );
 
-my ($addsh, $class);
+my $addsh = "";
 
-if ($^O eq 'MSWin32') {
-  print "Enabling Windows hacks...\n";
-  $addsh = "sh ";
-  $class = Alien::Base::ModuleBuild->subclass( class => 'Alien::OpenSSL::Builder',
-                                               code => <<'EOC' );
+my $builder_code = <<'EOC';
 
 use Carp;
 use File::Spec;
 use Env qw(@PATH);
+
+sub use_installed_version {
+  my $self = shift;
+  if (defined (my $type = $self->config_data('install_type'))) {
+    return ($type eq 'system');
+  }
+
+  !$Alien::Base::ModuleBuild::Force and
+    $self->alien_check_installed_version
+}
+
+sub system_openssl_config_get {
+  my ($self, @keys) = @_;
+  my @lines;
+  for my $lib (qw(libcrypto libssl openssl)) {
+    my %result = $self->do_system(join(' ', '%{pkg_config}', $lib, map "--$_", @keys));
+    if ($result{success}) {
+      push @lines, $result{stdout};
+    }
+  }
+  if (@lines) {
+    chomp @lines;
+    return join ' ', @lines;
+  }
+  return;
+}
+
+sub alien_provides_cflags {
+  my $self = shift;
+  if ($self->use_installed_version) {
+    return $self->system_openssl_config_get('cflags');
+  }
+  return;
+}
+
+sub alien_provides_libs {
+  my $self = shift;
+  if ($self->use_installed_version) {
+    return $self->system_openssl_config_get('libs');
+  }
+  return;
+}
+
+EOC
+
+
+if ($^O eq 'MSWin32') {
+  print "Enabling Windows hacks...\n";
+  $addsh = "sh ";
+
+$builder_code .= <<'EOC';
 
 # Look for MinGW
 for my $INC (grep !ref, @INC) {
@@ -40,10 +87,10 @@ sub alien_extract_archive {
 EOC
 
 }
-else {
-  $addsh = "";
-  $class = 'Alien::Base::ModuleBuild';
-}
+
+my $class = Alien::Base::ModuleBuild->subclass( class => 'Alien::OpenSSL::Builder',
+                                                code => $builder_code );
+
 
 my $builder = $class->new (
 	sign => 1,
