@@ -67,6 +67,7 @@ my $builder = $class->new (
 		pattern  => qr/^openssl-([\d\.]+\w?).tar\.gz$/,
 	},
 	alien_msys => 1,
+        alien_env_fixpath => [qw(PERL)],
 	alien_stage_install => 0,
 	alien_build_commands => [
 		$addcc.$addsh.'%pconfig shared --prefix=%s',
